@@ -17,7 +17,7 @@
 <style>
 :root{
   --canvas:#ffffff; --ink:#111111; --muted:#686868;
-  --well:#e8e8e8; --well-deep:#dedede; --line:#d2d2d2; --blue:#5f6fff;
+  --well:#e8e8e8; --well-deep:#dedede; --line:#d2d2d2; --blue:#5f6fff; --blue-text:#414ed7;
   --page-pad:clamp(18px,3vw,48px); --max:1240px; --header:78px;
 }
 *{box-sizing:border-box}
@@ -28,7 +28,7 @@ img,video{max-width:100%;display:block}
 figure{margin:0}
 h1,h2,h3,p{margin:0}
 h1,h2,h3,strong{font-weight:600}
-::selection{background:var(--blue);color:#fff}
+::selection{background:var(--blue-text);color:#fff}
 a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offset:4px}
 .shell{width:min(100%,var(--max));margin-inline:auto;padding-inline:var(--page-pad)}
 
@@ -38,10 +38,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offse
 .site-header{position:sticky;top:0;z-index:50;background:#fffffff2;backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
 .site-header__inner{display:flex;align-items:center;justify-content:space-between;gap:24px;height:var(--header);width:min(100%,var(--max));margin-inline:auto;padding-inline:var(--page-pad)}
 .wordmark{font-weight:700;font-size:clamp(1.05rem,1.6vw,1.35rem);white-space:nowrap}
-.wordmark span{color:var(--blue)}
+.wordmark span{color:var(--blue-text)}
 .site-nav{display:flex;align-items:center;gap:clamp(18px,2.6vw,40px);font-size:.86rem}
 .site-nav a{padding:6px 0;border-bottom:1px solid transparent;transition:color .16s,border-color .16s}
-.site-nav a:hover{color:var(--blue);border-color:var(--blue)}
+.site-nav a:hover{color:var(--blue-text);border-color:var(--blue)}
 
 .intro{padding:clamp(56px,7vw,110px) 0 clamp(40px,5vw,72px)}
 .kicker{color:var(--muted);text-transform:uppercase;font-size:.76rem}
@@ -49,7 +49,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offse
 .lede{margin-top:22px;max-width:60ch;color:#303030;font-size:clamp(1.02rem,1.5vw,1.3rem)}
 .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
 .btn{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 18px;border:1px solid var(--line);background:var(--canvas);font:inherit;font-weight:600;transition:border-color .16s,background-color .16s,color .16s}
-.btn:hover{border-color:var(--blue);background:var(--well);color:var(--blue)}
+.btn:hover{border-color:var(--blue);background:var(--well);color:var(--blue-text)}
 .btn--primary{background:var(--ink);border-color:var(--ink);color:#fff}
 .btn--primary:hover{background:#000;border-color:#000;color:#fff}
 
@@ -74,7 +74,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offse
 
 .steps{counter-reset:s}
 .steps li{counter-increment:s;display:grid;grid-template-columns:52px minmax(0,1fr);gap:clamp(14px,2vw,32px);padding:22px 0;border-bottom:1px solid var(--line)}
-.steps li::before{content:counter(s,decimal-leading-zero);color:var(--blue);font-weight:600;font-size:.9rem}
+.steps li::before{content:counter(s,decimal-leading-zero);color:var(--blue-text);font-weight:600;font-size:.9rem}
 .steps .t{font-weight:600;font-size:clamp(1.02rem,1.6vw,1.35rem)}
 .steps .d{color:#444;font-size:.95rem;margin-top:6px;max-width:62ch}
 
@@ -86,7 +86,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offse
 .site-footer__name{font-weight:600;color:var(--ink)}
 .site-footer p{color:var(--muted);font-size:.82rem;margin-top:5px}
 .site-footer nav{display:flex;flex-wrap:wrap;gap:24px;font-size:.85rem}
-.site-footer nav a:hover{color:var(--blue)}
+.site-footer nav a:hover{color:var(--blue-text)}
 
 .reveal-ready [data-reveal]{transform:translateY(14px);transition:transform .7s cubic-bezier(.22,1,.36,1)}
 .reveal-ready [data-reveal].is-visible{transform:none}
@@ -170,8 +170,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offse
       </ol>
       <div class="actions">
         <a class="btn btn--primary" href="https://github.com/ZURAVFX/ZURA-Shot-Reader/releases/download/v0.3.0/ZURA-Shot-Reader-v0.3.0.zip">Download add-on</a>
+        <a class="btn" href="https://github.com/ZURAVFX/ZURA-Shot-Reader/releases/tag/v0.4.0-preview">Apple silicon preview</a>
         <a class="btn" href="https://github.com/ZURAVFX/ZURA-Shot-Reader/issues">Compatibility / bugs</a>
       </div>
+      <p class="lede">The Apple silicon preview targets macOS 14 or later and Blender 5.2. Model conversion has been verified. Inference on Apple hardware still needs testing.</p>
       <div class="note">
         <b>A starting point for previs</b>
         Camera and blocking are approximate. Shot Reader estimates the camera's starting pose and lens. Refine camera moves and character gestures in Blender.
