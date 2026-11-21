@@ -236,6 +236,7 @@ def place_set(collection, items, camera_height, target):
                          (0.6, 0.58, 0.55, 1))
             vanity.location = (x + 0.18 * math.cos(yaw), y + 0.18 * math.sin(yaw), 0)
             vanity.rotation_euler.z = yaw
+            vanity["shot_reader_class"] = "vanity"
             vanity.data.materials.append(surface("Shot Reader • Vanity", vanity.color))
         if is_mirror:
             # Place a wall-mounted mirror just clear of a parallel wall when their volumes overlap.
@@ -277,8 +278,20 @@ def lighting(scene):
     data.shape = "DISK"
     data.size = 4
     obj = bpy.data.objects.new("Soft Light", data)
+    obj["shot_reader_preview_light"] = True
     scene.collection.objects.link(obj)
     obj.location = (0, 0.8, 2.42)
+
+
+def apply_plate_lens(camera, fit):
+    focal = number(fit.get("fx_normalized"))
+    if not 0.20 <= focal <= 8:
+        raise ValueError("Invalid plate focal estimate.")
+    camera["shot_reader_original_focal"] = camera.get("shot_reader_original_focal", camera.lens)
+    camera["shot_reader_original_sensor_fit"] = camera.get("shot_reader_original_sensor_fit", camera.sensor_fit)
+    camera.sensor_fit = "HORIZONTAL"
+    camera.lens = camera.sensor_width * focal
+    camera["shot_reader_lens_method"] = str(fit.get("method", "MoGe-2"))
 
 
 def build_blockout(sheet, title, source_render, library=None):
@@ -319,6 +332,8 @@ def build_blockout(sheet, title, source_render, library=None):
     data.sensor_fit = "HORIZONTAL"
     fov = max(1.0, min(175.0, number(spec.get("fov_deg"), 50.0)))
     data.lens = data.sensor_width / (2 * math.tan(math.radians(fov) / 2))
+    if isinstance(sheet.get("plate_lens"), dict):
+        apply_plate_lens(data, sheet["plate_lens"])
     camera = bpy.data.objects.new("Reference Camera", data)
     scene.collection.objects.link(camera)
     camera.location.z = number(spec.get("height_m"), 1.5)

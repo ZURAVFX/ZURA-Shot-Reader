@@ -126,9 +126,9 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offse
     <section class="intro">
       <p class="kicker">Blender 5.2 / Windows</p>
       <h1>ZURA Shot Reader</h1>
-      <p class="lede">Start a Blender blockout from a video reference. Get an estimated camera, editable set pieces and poseable characters, then compare them against the source in camera view.</p>
+      <p class="lede">Turn a video reference into an editable Blender scene. Fit the camera, set and motion locally, compare them against the source and export a clean geometry sequence for AI rendering.</p>
       <div class="actions">
-        <a class="btn btn--primary" href="https://github.com/ZURAVFX/ZURA-Shot-Reader/releases/download/v0.3.0/ZURA-Shot-Reader-v0.3.0.zip">Download add-on</a>
+        <a class="btn btn--primary" href="https://github.com/ZURAVFX/ZURA-Shot-Reader/releases/download/v0.46.0/ZURA-Shot-Reader-v0.46.0.zip">Download add-on</a>
         <a class="btn" href="https://github.com/ZURAVFX/ZURA-Shot-Reader">View on GitHub</a>
       </div>
       <figure class="media mask-frame" data-reveal>
@@ -144,8 +144,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offse
       <h2>From reference to editable scene</h2>
       <p class="lede">Shot Reader runs Voyager Shot Reader 8B locally and translates its estimates into Blender objects.</p>
       <ul class="rows" data-reveal>
-        <li><span class="n">01</span><span class="t">An editable camera</span><span class="d">Start with an estimated camera height, angle and lens in the source frame format.</span></li>
-        <li><span class="n">02</span><span class="t">Poseable characters</span><span class="d">The included mannequin gives you hand and foot IK, elbow and knee targets, and torso and head controls. You can also supply your own rig library.</span></li>
+        <li><span class="n">01</span><span class="t">An editable camera and set</span><span class="d">Match the source framing and use the local reconstruction tools to refine the lens, camera movement and visible set.</span></li>
+        <li><span class="n">02</span><span class="t">Poseable characters</span><span class="d">Pose the included mannequin or fit motion using a configured local SAM 3D Body runtime. Key artist corrections on the fitted rig.</span></li>
         <li><span class="n">03</span><span class="t">Compare with the source</span><span class="d">Toggle the original footage over the camera view and dial in the opacity as you scrub.</span></li>
       </ul>
     </section>
@@ -156,7 +156,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offse
       <ol class="steps" data-reveal>
         <li><div><span class="t">Choose your reference</span><p class="d">Select a video file. Shot Reader can make separate scenes at detected hard cuts.</p></div></li>
         <li><div><span class="t">Create a blockout</span><p class="d">Run the analysis on your GPU. The result opens in camera view with its shot sheet saved as JSON.</p></div></li>
-        <li><div><span class="t">Refine in Blender</span><p class="d">Adjust the camera, set and poses while checking them against the source.</p></div></li>
+        <li><div><span class="t">Refine and export</span><p class="d">Adjust the camera, set and poses against the source, then export clean PNGs of a frame or the whole shot.</p></div></li>
       </ol>
     </section>
 
@@ -165,18 +165,19 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--blue);outline-offse
       <p class="lede">Tested on Windows with Blender 5.2 and an NVIDIA RTX 4080 with 16 GB of VRAM.</p>
       <ol class="steps" data-reveal>
         <li><div><span class="t">Install the prerequisites</span><p class="d">Install 64-bit Python 3.11 to 3.13 and FFmpeg. Put python, ffmpeg and ffprobe on PATH.</p></div></li>
-        <li><div><span class="t">Set up local inference</span><p class="d">Download <a href="https://github.com/ZURAVFX/ZURA-Shot-Reader/releases/download/v0.3.0/setup-runtime.ps1"><u>setup-runtime.ps1</u></a> and run it in PowerShell. It creates a local environment and downloads around 17.5 GB of weights. Allow at least 25 GB of free disk space.</p></div></li>
+        <li><div><span class="t">Set up local inference</span><p class="d">Download <a href="https://github.com/ZURAVFX/ZURA-Shot-Reader/releases/download/v0.46.0/setup-runtime.ps1"><u>setup-runtime.ps1</u></a> and run it in PowerShell. It creates a local environment and downloads around 17.5 GB of weights. Allow at least 25 GB of free disk space.</p></div></li>
         <li><div><span class="t">Add Shot Reader</span><p class="d">In Blender Preferences, choose Add-ons, then Install from Disk. Select the ZIP and enable Shot Reader Local. Press N in the 3D View to find the Shot Reader tab.</p></div></li>
       </ol>
       <div class="actions">
-        <a class="btn btn--primary" href="https://github.com/ZURAVFX/ZURA-Shot-Reader/releases/download/v0.3.0/ZURA-Shot-Reader-v0.3.0.zip">Download add-on</a>
-        <a class="btn" href="https://github.com/ZURAVFX/ZURA-Shot-Reader/releases/tag/v0.4.0-preview">Apple silicon preview</a>
+        <a class="btn btn--primary" href="https://github.com/ZURAVFX/ZURA-Shot-Reader/releases/download/v0.46.0/ZURA-Shot-Reader-v0.46.0.zip">Download add-on</a>
+        <a class="btn" href="https://github.com/ZURAVFX/ZURA-Shot-Reader/releases/download/v0.46.0/ZURA-Shot-Reader-v0.46.0-Apple-Silicon-Preview.zip">Apple silicon preview</a>
         <a class="btn" href="https://github.com/ZURAVFX/ZURA-Shot-Reader/issues">Compatibility / bugs</a>
       </div>
-      <p class="lede">The Apple silicon preview targets macOS 14 or later and Blender 5.2. Model conversion has been verified. Inference on Apple hardware still needs testing.</p>
+      <p class="lede">Automatic reconstruction on Windows uses additional local checkpoints and a compatible SAM 3D Body installation. See the <a href="https://github.com/ZURAVFX/ZURA-Shot-Reader#local-reconstruction">runtime instructions</a>.</p>
+      <p class="lede">The Apple silicon blockout preview targets macOS 14 or later and Blender 5.2. End-to-end inference on Apple hardware still needs testing.</p>
       <div class="note">
         <b>A starting point for previs</b>
-        Camera and blocking are approximate. Shot Reader estimates the camera's starting pose and lens. Refine camera moves and character gestures in Blender.
+        Placement depends on the detail visible in the shot. Check the camera and poses against the source, especially where the footage hides part of the set or performer.
       </div>
     </section>
 

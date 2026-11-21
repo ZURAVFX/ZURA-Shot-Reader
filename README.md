@@ -14,9 +14,17 @@ The default runtime location is `%LOCALAPPDATA%\ZURAVFX\ShotReader`. If you set 
 ## Work with the blockout
 
 - **Show Source Clip** and **Source Opacity** blend the original video over the camera view as you scrub. The reference video remains linked by path.
+- **Export Geometry for AI Render** exports the current frame or the whole shot as PNGs from that camera, with clay materials and the physical mirror. The editable scene keeps its original materials.
 - **Pose Character** selects the included mannequin's rig. Move its hand and foot IK targets, adjust the elbow and knee poles, or rotate the hips, chest and head.
 - **Analysis Details** holds optional subject hints and the output JSON. Use **Rebuild from Shot Sheet** to regenerate the scene from an edited sheet.
-- **Detect hard cuts** creates separate scenes for detected shots. Camera, set dimensions and blocking are estimates. The camera uses the estimated first-frame pose and lens, and character gestures can be posed by hand.
+- **Reuse Local Shot Analysis** lets repeated reconstruction attempts reuse a completed shot sheet for the same unchanged clip, subject hints, models and analysis settings. Turn it off under **Analysis Details** to run fresh analysis.
+- **Detect hard cuts** creates a scene per detected shot. **Reconstruct Clip Locally** runs each scene through the local pipeline and writes a reconstruction report to each scene.
+
+## Local reconstruction
+
+The Windows installer sets up the Voyager runtime for the basic blockout. The full automatic workflow also uses a SAM 3D Body build of ComfyUI. In the add-on preferences, point **SAM · ComfyUI folder** and **SAM · ComfyUI Python** to that installation, and select the local body, foreground matte and person segmentation checkpoints. The lens and visible-set stages use **MoGe-2 ONNX model**. The face, pose and hair checkpoints enable their corresponding refinement stages.
+
+The resulting rig keeps the captured animation and the **Artist Corrections** controls for keying pose adjustments. Use **Pose Character** to access the controls and the linked plate to check alignment.
 
 ## Bring your own character
 

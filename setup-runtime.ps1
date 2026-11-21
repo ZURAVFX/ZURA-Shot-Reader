@@ -26,6 +26,7 @@ if (-not (Test-Path -LiteralPath $runtime)) {
 }
 Invoke-Checked { & $runtime -m pip install 'torch==2.10.0' 'torchvision==0.25.0' --index-url https://download.pytorch.org/whl/cu128 }
 Invoke-Checked { & $runtime -m pip install 'transformers==5.8.0' 'accelerate==1.14.0' 'bitsandbytes==0.50.2' pillow 'huggingface-hub==1.30.0' }
+Invoke-Checked { & $runtime -m pip install opencv-python scipy onnxruntime }
 Invoke-Checked { & $runtime -c "import torch, bitsandbytes; from transformers import AutoModelForImageTextToText, AutoProcessor; assert torch.cuda.is_available(), 'CUDA unavailable. Check your NVIDIA driver.'" }
 
 Write-Host 'Downloading Voyager Shot Reader 8B (about 17.5 GB).'
