@@ -56,6 +56,33 @@ def sample_frames(path, duration, size, count):
     return times, frames
 
 
+def mlx_runner():
+    from mlx_vlm import generate, load
+    from mlx_vlm.prompt_utils import apply_chat_template
+
+    loaded = None
+
+    def run(model_path, prompt, frames, max_tokens, _four_bit):
+        nonlocal loaded
+        if loaded is None:
+            loaded = load(model_path, trust_remote_code=False)
+        model, processor = loaded
+        formatted = apply_chat_template(processor, model.config, prompt, num_images=len(frames))
+        with tempfile.TemporaryDirectory(prefix="shot-reader-mlx-") as directory:
+            images = []
+            for index, frame in enumerate(frames):
+                path = Path(directory, f"{index:02}.png")
+                frame.save(path, format="PNG")
+                images.append(str(path))
+            result = generate(
+                model, processor, formatted, image=images, max_tokens=max_tokens,
+                temperature=0.0, verbose=False,
+            )
+        return result.text
+
+    return run
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("script", type=Path)
@@ -64,11 +91,14 @@ def main():
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--subject", action="append", default=[])
     parser.add_argument("--detect-cuts", action="store_true")
+    parser.add_argument("--runtime", choices=("cuda", "mlx"), default="cuda")
     options = parser.parse_args()
     metadata = video_format(options.clip)
     module_spec = importlib.util.spec_from_file_location("voyager_shot_reader", options.script)
     reader = importlib.util.module_from_spec(module_spec)
     module_spec.loader.exec_module(reader)
+    if options.runtime == "mlx":
+        reader.run_transformers = mlx_runner()
     if hasattr(reader, "PROMPT"):
         reader.PROMPT += (
             "\nIf a person appears both directly and in a mirror, list them only once, at the "
@@ -104,9 +134,11 @@ def main():
                 "-preset", "ultrafast", "-crf", "16", "-y", clip,
             ], check=True)
         sys.argv = [
-            str(options.script), clip, "--model", options.model, "--load-in-4bit",
+            str(options.script), clip, "--model", options.model,
             "--out", str(options.out),
         ]
+        if options.runtime == "cuda":
+            sys.argv.append("--load-in-4bit")
         sys.argv.extend("--subject=" + subject for subject in options.subject)
         print(f"Analysing shot {index + 1} of {len(cuts) - 1}", flush=True)
         reader.main()

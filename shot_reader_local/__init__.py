@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Shot Reader Local",
     "author": "ZURA VFX",
-    "version": (0, 3, 0),
+    "version": (0, 4, 0),
     "blender": (5, 2, 0),
     "location": "3D View > Sidebar > Shot Reader",
     "category": "3D View",
@@ -10,6 +10,7 @@ bl_info = {
 import json
 import os
 from pathlib import Path
+import platform
 import shutil
 import subprocess
 import tempfile
@@ -20,7 +21,15 @@ from .blockout import build_blockout
 
 
 ADDON = __package__
-RUNTIME = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "ZURAVFX" / "ShotReader"
+MACOS = platform.system() == "Darwin"
+if MACOS:
+    RUNTIME = Path.home() / "Library" / "Application Support" / "ZURAVFX" / "ShotReader"
+    PYTHON_PATH = RUNTIME / "runtime" / "bin" / "python"
+    MODEL_PATH = RUNTIME / "model-mlx"
+else:
+    RUNTIME = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "ZURAVFX" / "ShotReader"
+    PYTHON_PATH = RUNTIME / "runtime" / "Scripts" / "python.exe"
+    MODEL_PATH = RUNTIME / "model"
 job = None
 status = ""
 
@@ -29,10 +38,10 @@ class ShotReaderPreferences(bpy.types.AddonPreferences):
     bl_idname = ADDON
 
     python: bpy.props.StringProperty(name="Python executable", subtype="FILE_PATH",
-                                     default=str(RUNTIME / "runtime" / "Scripts" / "python.exe"))
+                                     default=str(PYTHON_PATH))
     script: bpy.props.StringProperty(name="Shot Reader script", subtype="FILE_PATH",
                                      default=str(RUNTIME / "shot_reader.py"))
-    model: bpy.props.StringProperty(name="Model folder", subtype="DIR_PATH", default=str(RUNTIME / "model"))
+    model: bpy.props.StringProperty(name="Model folder", subtype="DIR_PATH", default=str(MODEL_PATH))
     ffmpeg: bpy.props.StringProperty(name="FFmpeg folder", subtype="DIR_PATH")
     character_library: bpy.props.StringProperty(
         name="Custom character library", subtype="FILE_PATH",
@@ -168,6 +177,9 @@ class ShotReaderRun(bpy.types.Operator):
 
     def execute(self, context):
         global job, status
+        if MACOS and platform.machine() != "arm64":
+            self.report({"ERROR"}, "Use the Apple silicon version of Blender with this runtime.")
+            return {"CANCELLED"}
         prefs = context.preferences.addons[ADDON].preferences
         settings = context.scene.shot_reader
         clip = Path(bpy.path.abspath(settings.clip))
@@ -180,16 +192,24 @@ class ShotReaderRun(bpy.types.Operator):
             "Python executable": python,
             "Shot Reader script": script,
             "Shot Reader schema": script.with_name("schema.md"),
-            "Model weights": model / "model.safetensors",
+            "Model configuration": model / "config.json",
         }
         for label, path in required.items():
             if not path.is_file():
                 self.report({"ERROR"}, f"{label} missing: {path}")
                 return {"CANCELLED"}
+        if not any(path.is_file() for path in model.glob("model*.safetensors")):
+            self.report({"ERROR"}, f"Model weights missing: {model}")
+            return {"CANCELLED"}
         env = os.environ.copy()
+        search_paths = []
         if prefs.ffmpeg:
-            env["PATH"] = bpy.path.abspath(prefs.ffmpeg) + os.pathsep + env.get("PATH", "")
-        if not all(shutil.which(tool, path=env.get("PATH")) for tool in ("ffmpeg", "ffprobe")):
+            search_paths.append(bpy.path.abspath(prefs.ffmpeg))
+        search_paths.append(env.get("PATH") or os.defpath)
+        if MACOS:
+            search_paths.extend(("/opt/homebrew/bin", "/usr/local/bin"))
+        env["PATH"] = os.pathsep.join(search_paths)
+        if not all(shutil.which(tool, path=env["PATH"]) for tool in ("ffmpeg", "ffprobe")):
             self.report({"ERROR"}, "Set the FFmpeg folder in the add-on preferences.")
             return {"CANCELLED"}
         env.update(HF_HUB_OFFLINE="1", PYTHONUTF8="1")
@@ -198,6 +218,8 @@ class ShotReaderRun(bpy.types.Operator):
             str(python), str(Path(__file__).with_name("infer.py")), str(script), str(clip), "--model", str(model),
             "--out", str(Path(temp.name, "sheet.json")),
         ]
+        if MACOS:
+            command.extend(("--runtime", "mlx"))
         for subject in settings.subjects.split("|"):
             if subject.strip():
                 command.append("--subject=" + subject.strip())
